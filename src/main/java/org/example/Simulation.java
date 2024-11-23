@@ -3,13 +3,15 @@ package org.example;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Arrays;
 import java.util.Random;
 
 public class Simulation {
@@ -71,15 +73,42 @@ public class Simulation {
     private static CategoryDataset createDataset(int[] m, double[] gran) {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         for (int i = 0; i < m.length; i++) {
-            dataset.addValue((double)m[i] / N, "Frequency", gran[i] + " - " + gran[i + 1]);
+            dataset.addValue((double) m[i] / N, "Frequency", gran[i] + " - " + gran[i + 1]);
         }
         return dataset;
     }
 
     private static void showHistogram(String title, CategoryDataset dataset, String xLabel, String yLabel) {
-        JFreeChart barChart = ChartFactory.createBarChart(title, xLabel, yLabel, dataset, PlotOrientation.VERTICAL, true, true, false);
+        JFreeChart barChart = ChartFactory.createBarChart(
+                title,
+                xLabel,
+                yLabel,
+                dataset,
+                PlotOrientation.VERTICAL,
+                true,
+                true,
+                false
+        );
+
+        // Получаем график из диаграммы
+        CategoryPlot plot = barChart.getCategoryPlot();
+
+        // Убираем отступы между столбцами
+        plot.setInsets(new RectangleInsets(0, 0, 0, 0)); // Убираем отступы графика
+        plot.getDomainAxis().setLowerMargin(0.0); // Убираем нижний отступ
+        plot.getDomainAxis().setUpperMargin(0.0); // Убираем верхний отступ
+
+        // Устанавливаем ширину столбцов
+        BarRenderer renderer = (BarRenderer) plot.getRenderer();
+        renderer.setItemMargin(0.0); // Убираем межстолбцовые промежутки
+        renderer.setMaximumBarWidth(1.0); // Увеличиваем ширину столбцов
+
+        // Убедимся, что у нас нет промежутков и между графиками
+        plot.getDomainAxis().setCategoryMargin(0.0); // Убираем промежутки между графиками
+
         ChartPanel chartPanel = new ChartPanel(barChart);
         chartPanel.setPreferredSize(new Dimension(800, 600));
+
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.add(chartPanel);
